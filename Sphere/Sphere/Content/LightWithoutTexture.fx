@@ -106,7 +106,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float diffuseFactor = saturate(dot(N, L));
 	float3 Diffuse = diffuseFactor * Kd * Id;
 
-	float specularFactor = pow(saturate(dot(R, V)), Shininess);
+	float specularFactor = pow(saturate(dot(L, R)), Shininess);
 	float3 Specular = specularFactor * Ks * Is;
 
 	float dist = distance(LightPosition, input.WorldPosition.xyz);
