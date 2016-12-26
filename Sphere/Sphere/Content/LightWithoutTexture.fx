@@ -1,23 +1,21 @@
-﻿#define POINT_LIGHT_NUMBER 1
-
-float3 CameraPosition;
+﻿float3 CameraPosition;
 
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
 float3 Ka;
-float3 Kd[POINT_LIGHT_NUMBER];
-float3 Ks[POINT_LIGHT_NUMBER];
+float3 Kd;
+float3 Ks;
 
-float3 LightPosition[POINT_LIGHT_NUMBER];
+float3 LightPosition;
 float Ia;
-float Id[POINT_LIGHT_NUMBER];
-float Is[POINT_LIGHT_NUMBER];
+float Id;
+float Is;
 float Shininess;
 
-float Attenuation[POINT_LIGHT_NUMBER];
-float Falloff[POINT_LIGHT_NUMBER];
+float Attenuation;
+float Falloff;
 
 float3 pentagonPoints[12];
 float3 hexagonPoints[20];
@@ -96,30 +94,25 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	Ambient *= interpolation;
 
 	float3 phonglLight = 0;
-	Ia = 0;
-	for (int i = 0; i < POINT_LIGHT_NUMBER; i++)
-	{
-		Ia += Is[i] + Id[i];
-	}
+	Ia = Is + Id;
 	Ia = clamp(Ia / 2, 0, 1);
 	phonglLight += Ambient*Ia;
-	for (int i = 0; i < POINT_LIGHT_NUMBER; i++)
-	{
-		float3 L = normalize(LightPosition[i] - input.WorldPosition.xyz);
-		float3 N = normalize(input.Normal);
-		float3 V = normalize(CameraPosition - input.WorldPosition.xyz);
-		float3 R = -reflect(L, N);
 
-		float diffuseFactor = saturate(dot(N, L));
-		float3 Diffuse = diffuseFactor * Kd[i] * Id[i];
+	float3 L = normalize(LightPosition - input.WorldPosition.xyz);
+	float3 N = normalize(input.Normal);
+	float3 V = normalize(CameraPosition - input.WorldPosition.xyz);
+	float3 R = -reflect(L, N);
 
-		float specularFactor = pow(saturate(dot(R, V)), Shininess);
-		float3 Specular = specularFactor * Ks[i] * Is[i];
+	float diffuseFactor = saturate(dot(N, L));
+	float3 Diffuse = diffuseFactor * Kd * Id;
 
-		float dist = distance(LightPosition[i], input.WorldPosition.xyz);
-		float att = 1 - pow(clamp(dist / Attenuation[i], 0, 1), Falloff[i]);
-		phonglLight += (Diffuse + Specular)*att;
-	}
+	float specularFactor = pow(saturate(dot(R, V)), Shininess);
+	float3 Specular = specularFactor * Ks * Is;
+
+	float dist = distance(LightPosition, input.WorldPosition.xyz);
+	float att = 1 - pow(clamp(dist / Attenuation, 0, 1), Falloff);
+	phonglLight += (Diffuse + Specular)*att;
+
 
 	float3 light = saturate(phonglLight);
 	return float4(light, 1);

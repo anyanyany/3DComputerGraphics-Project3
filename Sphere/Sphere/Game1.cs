@@ -11,8 +11,7 @@ namespace Sphere
         GraphicsDeviceManager graphics;
         Camera camera;
         LightManager lightManager;
-        Effect effectWithoutTexture;
-        List<Effect> effects;
+        Effect effect;
 
         Sphere sphere;
 
@@ -20,7 +19,6 @@ namespace Sphere
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            effects = new List<Effect>();
         }
 
         protected override void Initialize()
@@ -34,12 +32,11 @@ namespace Sphere
 
         protected override void LoadContent()
         {
-            effectWithoutTexture = Content.Load<Effect>("LightWithoutTexture");
-            effects.Add(effectWithoutTexture);
-            lightManager = new LightManager(effects);
+            effect = Content.Load<Effect>("LightWithoutTexture");
+            lightManager = new LightManager(effect);
 
             PointLight pl1 = new PointLight(new Vector3(10, 0, 0), Color.LightYellow, Color.LightYellow, 0.6f, 0.2f, 50.0f, 3.0f);
-            lightManager.addPointLight(pl1);
+            lightManager.setPointLight(pl1);
             lightManager.SetEffectParameters();
 
             LoadModels();
@@ -66,10 +63,10 @@ namespace Sphere
         protected void DrawScene(Camera _camera)
         {
             GraphicsDevice.Clear(Color.Black);
-            effectWithoutTexture.Parameters["View"].SetValue(_camera.ViewMatrix);
-            effectWithoutTexture.Parameters["Projection"].SetValue(_camera.ProjectionMatrix);
-            effectWithoutTexture.Parameters["CameraPosition"].SetValue(_camera.Position);
-            sphere.Draw(effectWithoutTexture, graphics);
+            effect.Parameters["View"].SetValue(_camera.ViewMatrix);
+            effect.Parameters["Projection"].SetValue(_camera.ProjectionMatrix);
+            effect.Parameters["CameraPosition"].SetValue(_camera.Position);
+            sphere.Draw(effect, graphics);
         }
 
         protected override void Draw(GameTime gameTime)
